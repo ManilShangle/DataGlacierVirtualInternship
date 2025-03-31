@@ -1,51 +1,44 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Iris Prediction</title>
-    <!-- Bootstrap CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Species Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        input { width: 80%; padding: 8px; margin: 5px; }
+        button { padding: 10px 15px; background-color: blue; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: darkblue; }
+        img { max-width: 100%; margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <div class="container my-5">
-        <h1 class="mb-4 text-center">Iris Flower Prediction</h1>
-        <div class="card p-4">
-            <form action="/predict" method="post" id="prediction-form">
-                <div class="mb-3">
-                    <label for="feature1" class="form-label">Feature 1</label>
-                    <input type="text" class="form-control" id="feature1" name="feature1" placeholder="e.g. 5.1" required>
-                </div>
-                <div class="mb-3">
-                    <label for="feature2" class="form-label">Feature 2</label>
-                    <input type="text" class="form-control" id="feature2" name="feature2" placeholder="e.g. 3.5" required>
-                </div>
-                <div class="mb-3">
-                    <label for="feature3" class="form-label">Feature 3</label>
-                    <input type="text" class="form-control" id="feature3" name="feature3" placeholder="e.g. 1.4" required>
-                </div>
-                <div class="mb-3">
-                    <label for="feature4" class="form-label">Feature 4</label>
-                    <input type="text" class="form-control" id="feature4" name="feature4" placeholder="e.g. 0.2" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Predict</button>
-            </form>
-        </div>
-        <div class="mt-4 text-center" id="result">
-            <!-- The prediction image will be displayed here -->
-        </div>
+    <h2>Flower Species Prediction</h2>
+    <p>Enter the flower measurements below to predict its species.</p>
+
+    <div class="container">
+        <form action="/predict" method="post">
+            <label>Sepal Length (cm):</label><br>
+            <input type="text" name="sepal_length" placeholder="e.g., 5.1" required><br>
+
+            <label>Sepal Width (cm):</label><br>
+            <input type="text" name="sepal_width" placeholder="e.g., 3.5" required><br>
+
+            <label>Petal Length (cm):</label><br>
+            <input type="text" name="petal_length" placeholder="e.g., 1.4" required><br>
+
+            <label>Petal Width (cm):</label><br>
+            <input type="text" name="petal_width" placeholder="e.g., 0.2" required><br>
+
+            <button type="submit">Predict</button>
+        </form>
+
+        <h3>{{ prediction_text }}</h3>
+
+        {% if plot_url %}
+            <img src="data:image/png;base64,{{ plot_url }}" alt="Feature Plot">
+        {% endif %}
     </div>
-    
-    <!-- JavaScript to handle form submission and display the image -->
-    <script>
-        document.getElementById('prediction-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const response = await fetch('/predict', { method: 'POST', body: formData });
-            const blob = await response.blob();
-            const imgURL = URL.createObjectURL(blob);
-            document.getElementById('result').innerHTML = `<img src="${imgURL}" class="img-fluid" alt="Prediction Result">`;
-        });
-    </script>
 </body>
 </html>
