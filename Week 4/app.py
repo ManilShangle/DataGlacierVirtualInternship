@@ -1,23 +1,14 @@
-import pickle
-import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend
+import numpy as np
 import matplotlib.pyplot as plt
-from flask import Flask, request, jsonify, render_template, url_for
-from io import BytesIO
+import io
 import base64
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# Load the trained model (assumed saved as 'model.pkl')
-with open('model.pkl', 'rb') as f:
-    model = pickle.load(f)
-
-# Mapping for iris classes with descriptive names and reference image filenames.
-iris_mapping = {
-    0: {'name': 'Iris-setosa', 'image': 'iris_setosa.jpg'},
-    1: {'name': 'Iris-versicolor', 'image': 'iris_versicolor.jpg'},
-    2: {'name': 'Iris-virginica', 'image': 'iris_virginica.jpg'}
-}
+# Load model
+import pickle
+model = pickle.load(open("model.pkl", "rb"))
 
 @app.route('/')
 def home():
@@ -25,40 +16,40 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.form
     try:
-        # Extract features; expecting numbers for each iris measurement.
-        features = [float(data.get(f'feature{i}', 0)) for i in range(1, 5)]
+        # Get user inputs
+        sepal_length = float(request.form['sepal_length'])
+        sepal_width = float(request.form['sepal_width'])
+        petal_length = float(request.form['petal_length'])
+        petal_width = float(request.form['petal_width'])
+
+        # Prepare data for model
+        features = np.array([[sepal_length, sepal_width, petal_length, petal_width]])
+        prediction = model.predict(features)[0]
+
+        # Map prediction to meaningful label
+        class_mapping = {0: "Iris Setosa", 1: "Iris Versicolor", 2: "Iris Virginica"}
+        prediction_label = class_mapping.get(prediction, "Unknown")
+
+        # Generate a visualization
+        fig, ax = plt.subplots()
+        ax.bar(['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width'],
+               [sepal_length, sepal_width, petal_length, petal_width],
+               color=['blue', 'green', 'red', 'purple'])
+        ax.set_title("Feature Values")
+
+        # Convert plot to image
+        img = io.BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        plot_url = base64.b64encode(img.getvalue()).decode()
+
+        return render_template('index.html', 
+                               prediction_text=f'The predicted flower species is: {prediction_label}',
+                               plot_url=plot_url)
+
     except Exception as e:
-        return jsonify({'error': 'Invalid input. Please provide numeric values.'}), 400
+        return jsonify({'error': str(e)})
 
-    # Make prediction using the loaded model.
-    prediction = model.predict([features])[0]
-    iris_info = iris_mapping.get(prediction, {'name': 'Unknown', 'image': 'unknown.jpg'})
-
-    # Create a simple matplotlib plot that displays the prediction text.
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.text(0.5, 0.5, f'Prediction: {iris_info["name"]}', fontsize=20,
-            ha='center', va='center')
-    ax.axis('off')
-
-    buf = BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    plt.close(fig)
-
-    # Encode the matplotlib plot image as a base64 string.
-    plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    
-    # Build URL for the static reference image.
-    iris_image_url = url_for('static', filename=iris_info['image'])
-    
-    return jsonify({
-        'prediction': prediction,
-        'prediction_text': iris_info['name'],
-        'plot_image': plot_base64,
-        'iris_image_url': iris_image_url
-    })
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
