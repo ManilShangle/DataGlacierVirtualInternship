@@ -4,15 +4,48 @@
 <head>
     <meta charset="UTF-8">
     <title>Iris Prediction</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Iris Flower Prediction</h1>
-    <form action="/predict" method="post">
-        <label>Feature 1: <input type="text" name="feature1"></label><br>
-        <label>Feature 2: <input type="text" name="feature2"></label><br>
-        <label>Feature 3: <input type="text" name="feature3"></label><br>
-        <label>Feature 4: <input type="text" name="feature4"></label><br>
-        <button type="submit">Predict</button>
-    </form>
+    <div class="container my-5">
+        <h1 class="mb-4 text-center">Iris Flower Prediction</h1>
+        <div class="card p-4">
+            <form action="/predict" method="post" id="prediction-form">
+                <div class="mb-3">
+                    <label for="feature1" class="form-label">Feature 1</label>
+                    <input type="text" class="form-control" id="feature1" name="feature1" placeholder="e.g. 5.1" required>
+                </div>
+                <div class="mb-3">
+                    <label for="feature2" class="form-label">Feature 2</label>
+                    <input type="text" class="form-control" id="feature2" name="feature2" placeholder="e.g. 3.5" required>
+                </div>
+                <div class="mb-3">
+                    <label for="feature3" class="form-label">Feature 3</label>
+                    <input type="text" class="form-control" id="feature3" name="feature3" placeholder="e.g. 1.4" required>
+                </div>
+                <div class="mb-3">
+                    <label for="feature4" class="form-label">Feature 4</label>
+                    <input type="text" class="form-control" id="feature4" name="feature4" placeholder="e.g. 0.2" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Predict</button>
+            </form>
+        </div>
+        <div class="mt-4 text-center" id="result">
+            <!-- The prediction image will be displayed here -->
+        </div>
+    </div>
+    
+    <!-- JavaScript to handle form submission and display the image -->
+    <script>
+        document.getElementById('prediction-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/predict', { method: 'POST', body: formData });
+            const blob = await response.blob();
+            const imgURL = URL.createObjectURL(blob);
+            document.getElementById('result').innerHTML = `<img src="${imgURL}" class="img-fluid" alt="Prediction Result">`;
+        });
+    </script>
 </body>
 </html>
