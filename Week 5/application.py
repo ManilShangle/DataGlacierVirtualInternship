@@ -4,17 +4,17 @@ import io
 import base64
 from flask import Flask, render_template, request, jsonify
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 # Load model
 import pickle
 model = pickle.load(open("model.pkl", "rb"))
 
-@app.route('/')
+@application.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
+@application.route('/predict', methods=['POST'])
 def predict():
     try:
         # Get user inputs
@@ -52,4 +52,4 @@ def predict():
         return jsonify({'error': str(e)})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    application.run(debug=True)
