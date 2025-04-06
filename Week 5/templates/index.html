@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Species Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        input { width: 80%; padding: 8px; margin: 5px; }
+        button { padding: 10px 15px; background-color: blue; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: darkblue; }
+        img { max-width: 100%; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Flower Species Prediction</h2>
+    <p>Enter the flower measurements below to predict its species.</p>
+
+    <div class="container">
+        <form action="/predict" method="post">
+            <label>Sepal Length (cm):</label><br>
+            <input type="text" name="sepal_length" placeholder="e.g., 5.1" required><br>
+
+            <label>Sepal Width (cm):</label><br>
+            <input type="text" name="sepal_width" placeholder="e.g., 3.5" required><br>
+
+            <label>Petal Length (cm):</label><br>
+            <input type="text" name="petal_length" placeholder="e.g., 1.4" required><br>
+
+            <label>Petal Width (cm):</label><br>
+            <input type="text" name="petal_width" placeholder="e.g., 0.2" required><br>
+
+            <button type="submit">Predict</button>
+        </form>
+
+        <h3>{{ prediction_text }}</h3>
+
+        {% if plot_url %}
+            <img src="data:image/png;base64,{{ plot_url }}" alt="Feature Plot">
+        {% endif %}
+    </div>
+</body>
+</html>
